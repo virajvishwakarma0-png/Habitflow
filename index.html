@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d0f">
+  <meta name="description" content="Private offline personal habit tracker">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>HabitFlow — Personal Habit Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="toast" class="toast" role="status"></div>
+  <header class="topbar">
+    <button class="brand" data-page="dashboard" aria-label="Go to dashboard"><span class="brand-mark">H</span><span>HabitFlow</span></button>
+    <nav class="nav" aria-label="Main navigation">
+      <button data-page="dashboard" class="nav-btn active">Today</button>
+      <button data-page="history" class="nav-btn">History</button>
+      <button data-page="reports" class="nav-btn">Reports</button>
+      <button data-page="settings" class="nav-btn">Settings</button>
+    </nav>
+    <div class="top-actions">
+      <button id="themeBtn" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">☼</button>
+      <button id="addHabitTop" class="primary">+ Habit</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="dashboardPage" class="page active">
+      <div class="hero">
+        <div>
+          <div class="eyebrow" id="todayLabel"></div>
+          <h1 id="greeting">Good evening.</h1>
+          <p id="motivation">Small wins compound.</p>
+        </div>
+        <div class="date-chip" id="dateChip"></div>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card progress-card">
+          <div class="ring-wrap"><svg class="progress-ring" viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="50"/><circle id="ring" class="ring-value" cx="60" cy="60" r="50"/></svg><div class="ring-label"><b id="score">0</b><span>/100</span></div></div>
+          <div><span class="stat-kicker">Today's score</span><h2 id="progressText">0% complete</h2><p id="progressMeta">0 of 0 scheduled</p></div>
+        </article>
+        <article class="stat-card"><span class="stat-kicker">Current streak</span><h2><span id="currentStreak">0</span> days</h2><p>Keep showing up.</p></article>
+        <article class="stat-card"><span class="stat-kicker">Best streak</span><h2><span id="bestStreak">0</span> days</h2><p>You've got this.</p></article>
+        <article class="stat-card"><span class="stat-kicker">Completed days</span><h2 id="completedDays">0</h2><p>Days with a perfect score.</p></article>
+      </div>
+
+      <div class="section-head">
+        <div><h2>Today's habits</h2><p id="habitSub">Your scheduled habits</p></div>
+        <div class="filters"><input id="habitSearch" type="search" placeholder="Search habits…" aria-label="Search habits"><select id="categoryFilter"><option value="all">All categories</option></select></div>
+      </div>
+      <div id="habitList" class="habit-list"></div>
+
+      <section class="note-card">
+        <div><div><h2>Daily note</h2><p>A private reflection saved on this device.</p></div><span class="muted">Local only</span></div>
+        <textarea id="dayNote" maxlength="2000" placeholder="What went well today? What do you want to remember?"></textarea>
+      </section>
+    </section>
+
+    <section id="historyPage" class="page">
+      <div class="page-title"><div><span class="eyebrow">History</span><h1>Look back, learn, continue.</h1></div><input id="historyDate" type="date" aria-label="Choose date"></div>
+      <div class="history-layout">
+        <div class="calendar-card"><div class="calendar-head"><button id="prevMonth" class="icon-btn">‹</button><h2 id="monthTitle"></h2><button id="nextMonth" class="icon-btn">›</button></div><div class="weekdays">S M T W T F S</div><div id="calendar" class="calendar"></div></div>
+        <div class="selected-day-card"><span class="eyebrow">Selected day</span><h2 id="selectedTitle"></h2><div id="selectedSummary" class="summary"></div><div id="selectedHabits" class="mini-list"></div><textarea id="historyNote" maxlength="2000" placeholder="Daily note"></textarea></div>
+      </div>
+    </section>
+
+    <section id="reportsPage" class="page">
+      <div class="page-title"><div><span class="eyebrow">Reports</span><h1>Your consistency, visualized.</h1></div><div class="range-tabs"><button data-range="7" class="active">7D</button><button data-range="14">14D</button><button data-range="30">30D</button></div></div>
+      <div class="report-grid">
+        <article class="chart-card wide"><div class="card-head"><div><h2>Daily completion</h2><p>Completed scheduled habits ÷ scheduled habits</p></div><span id="reportAvg" class="pill"></span></div><canvas id="trendCanvas" height="240"></canvas></article>
+        <article class="chart-card"><h2>This month</h2><div id="monthReport" class="report-list"></div></article>
+        <article class="chart-card"><h2>Consistency</h2><div id="consistencyReport" class="report-list"></div></article>
+      </div>
+    </section>
+
+    <section id="settingsPage" class="page">
+      <div class="page-title"><div><span class="eyebrow">Settings</span><h1>Control your data.</h1></div></div>
+      <div class="settings-grid">
+        <article class="settings-card"><h2>Backup & restore</h2><p>Everything stays on this device unless you export it.</p><div class="button-row"><button id="exportJson" class="primary">Export JSON</button><button id="importJson" class="secondary">Restore JSON</button><input id="fileInput" type="file" accept=".json,application/json" hidden></div><button id="exportCsv" class="secondary full">Export CSV history</button></article>
+        <article class="settings-card"><h2>Habits</h2><p>Manage your routine and categories.</p><button id="manageHabits" class="secondary full">Manage habits</button></article>
+        <article class="settings-card danger-card"><h2>Demo data</h2><p>Reset everything to the original sample habits and history.</p><button id="resetData" class="danger full">Reset demo data</button></article>
+        <article class="settings-card"><h2>About offline mode</h2><p>The app uses localStorage and a service worker. PWA installation normally requires HTTPS or localhost. GitHub Pages is an easy HTTPS deployment option.</p><p class="muted">Notifications/reminders depend on browser and OS support and are intentionally not used as a guaranteed feature.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head"><h2 id="modalTitle">Add habit</h2><button class="icon-btn" data-close-modal>×</button></div>
+      <form id="habitForm">
+        <input id="habitId" type="hidden">
+        <label>Name<input id="habitName" required maxlength="80" placeholder="e.g. Practice guitar"></label>
+        <label>Category<select id="habitCategory"><option>Daily Routine</option><option>Study</option><option>Health</option><option>Fitness</option><option>Personal Growth</option></select></label>
+        <label>Schedule<select id="habitSchedule"><option value="daily">Every day</option><option value="weekdays">Selected weekdays</option></select></label>
+        <div id="weekdayPicker" class="weekday-picker"></div>
+        <label>Icon <input id="habitIcon" maxlength="4" placeholder="✓"></label>
+        <div class="form-actions"><button type="button" class="secondary" data-close-modal>Cancel</button><button class="primary" type="submit">Save habit</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
